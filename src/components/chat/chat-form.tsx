@@ -77,7 +77,7 @@ export function ChatForm({
           onChange={onInputChange}
           onKeyDown={handleKeyDown}
           placeholder="Ask a question or describe an image..."
-          className="min-h-[60px] w-full resize-none border-0 p-3 shadow-none focus-visible:ring-0"
+          className="min-h-[40px] w-full resize-none border-0 p-3 shadow-none focus-visible:ring-0"
           disabled={isLoading}
           rows={1}
         />
