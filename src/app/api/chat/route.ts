@@ -9,6 +9,7 @@ import type { Message, History, ChatRequest } from '@/lib/types';
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD;
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -47,7 +48,11 @@ function buildHistory(messages: Message[]): History[] {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = (await req.json()) as ChatRequest;
+    const { messages, password } = (await req.json()) as ChatRequest;
+
+    if (ACCESS_PASSWORD && password !== ACCESS_PASSWORD) {
+        return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
+    }
 
     if (!messages || messages.length === 0) {
       return NextResponse.json({ error: 'No messages provided' }, { status: 400 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect, useRef } from 'react';
 import type { Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { ChatList } from './chat-list';
@@ -8,6 +8,20 @@ import { ChatForm } from './chat-form';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+import { InputWithLabel } from '@/components/ui/input-with-label';
+
+// A simple check to see if a password is required by checking an env var.
+// This is not secure for production apps, but fine for this demo.
+const isPasswordRequired = !!process.env.NEXT_PUBLIC_ACCESS_PASSWORD_REQUIRED;
 
 export function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -16,12 +30,36 @@ export function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(isPasswordRequired);
+  const [accessPassword, setAccessPassword] = useState('');
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isPasswordModalOpen) {
+      setTimeout(() => passwordInputRef.current?.focus(), 100);
+    }
+  }, [isPasswordModalOpen]);
+
   const handleImageUpload = (imageDataUrl: string | null) => {
     setImage(imageDataUrl);
   };
 
+  const handlePasswordSubmit = () => {
+    if (accessPassword) {
+      setIsPasswordModalOpen(false);
+      toast({
+        title: 'Password saved',
+        description: 'You can now start chatting.',
+      });
+    }
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isPasswordRequired && !accessPassword) {
+      setIsPasswordModalOpen(true);
+      return;
+    }
     if (!input.trim() && !image) return;
     if (isLoading) return;
 
@@ -41,8 +79,15 @@ export function Chat() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          password: accessPassword,
+        }),
       });
+
+      if (response.status === 401) {
+          throw new Error('Invalid password. Please refresh and try again.');
+      }
 
       if (!response.ok || !response.body) {
         const errorText = await response.text();
@@ -73,6 +118,10 @@ export function Chat() {
       });
       // Remove the placeholder on error
       setMessages(prev => prev.filter(msg => msg.id !== botMessageId));
+      if (error.message.includes('password')) {
+        setAccessPassword('');
+        setIsPasswordModalOpen(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,31 +136,60 @@ export function Chat() {
   }
 
   return (
-    <Card className="flex flex-col h-screen w-full max-w-4xl mx-auto rounded-none sm:rounded-xl sm:my-4 sm:h-[calc(100vh-2rem)] shadow-lg">
-      <header className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-primary-foreground">
-                    <path d="M12.378 1.602a.75.75 0 00-.756 0L3.366 6.002a.75.75 0 00-.366.648V16.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75V6.65a.75.75 0 00-.366-.648L12.378 1.602zM12 7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V8.25A.75.75 0 0112 7.5zM11.25 15a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5h-1.5z" />
-                </svg>
-            </div>
-            <h1 className="text-xl font-bold font-headline">MCT Chat</h1>
-        </div>
-        <Button variant="ghost" size="icon" onClick={clearChat} aria-label="Clear chat session">
-          <Trash2 className="w-5 h-5" />
-        </Button>
-      </header>
-      <ChatList messages={messages} isLoading={isLoading} />
-      <footer className="p-4 border-t">
-        <ChatForm
-          input={input}
-          onInputChange={(e) => setInput(e.target.value)}
-          onImageUpload={handleImageUpload}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-          imagePreview={image}
-        />
-      </footer>
-    </Card>
+    <>
+      <AlertDialog open={isPasswordModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Access Password Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please enter the password to access this chat application.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <InputWithLabel
+              id="password"
+              type="password"
+              label="Password"
+              value={accessPassword}
+              onChange={(e) => setAccessPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+              ref={passwordInputRef}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={handlePasswordSubmit} disabled={!accessPassword}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Card className="flex flex-col h-screen w-full max-w-4xl mx-auto rounded-none sm:rounded-xl sm:my-4 sm:h-[calc(100vh-2rem)] shadow-lg">
+        <header className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-primary-foreground">
+                      <path d="M12.378 1.602a.75.75 0 00-.756 0L3.366 6.002a.75.75 0 00-.366.648V16.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75V6.65a.75.75 0 00-.366-.648L12.378 1.602zM12 7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V8.25A.75.75 0 0112 7.5zM11.25 15a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5h-1.5z" />
+                  </svg>
+              </div>
+              <h1 className="text-xl font-bold font-headline">MCT Chat</h1>
+          </div>
+          <Button variant="ghost" size="icon" onClick={clearChat} aria-label="Clear chat session">
+            <Trash2 className="w-5 h-5" />
+          </Button>
+        </header>
+        <ChatList messages={messages} isLoading={isLoading} />
+        <footer className="p-4 border-t">
+          <ChatForm
+            input={input}
+            onInputChange={(e) => setInput(e.target.value)}
+            onImageUpload={handleImageUpload}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            imagePreview={image}
+          />
+        </footer>
+      </Card>
+    </>
   );
 }

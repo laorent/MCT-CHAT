@@ -13,6 +13,7 @@ This is a responsive, streaming chat application built with Next.js and powered 
 - **Responsive UI**: A clean and modern user interface that works seamlessly across desktop, tablet, and mobile devices.
 - **Session Reset**: A "Clear Session" button to instantly reset the conversation.
 - **Secure**: API keys are securely managed on the server-side and are not exposed to the client.
+- **Access Control**: Optional password protection to secure your API usage.
 
 ## 🚀 Getting Started
 
@@ -41,9 +42,15 @@ Create a `.env.local` file in the root of your project and add your Gemini API k
 
 ```
 GEMINI_API_KEY="your-gemini-api-key"
+
+# Optional: Specify a different Gemini model (default is gemini-2.5-flash)
+GEMINI_MODEL="gemini-2.5-flash"
+
+# Optional: Add a password to protect your application
+ACCESS_PASSWORD="your-secret-password"
 ```
 
-You can also specify a different Gemini model by adding `GEMINI_MODEL` to your `.env.local` file. The default is `gemini-2.5-flash`.
+If you set an `ACCESS_PASSWORD`, you will be prompted to enter it when you first load the application.
 
 ### 4. Run the development server
 
@@ -61,7 +68,7 @@ This application is optimized for deployment on [Vercel](https://vercel.com/).
 
 1.  **Push to GitHub/GitLab/Bitbucket**: Push your code to a Git repository.
 2.  **Import Project**: In your Vercel dashboard, import the project from your Git repository.
-3.  **Configure Environment Variables**: Vercel will automatically detect that you're using Next.js. Go to the "Environment Variables" section in your project settings and add your `GEMINI_API_KEY`. It's recommended to use Vercel's secret management for this.
+3.  **Configure Environment Variables**: Vercel will automatically detect that you're using Next.js. Go to the "Environment Variables" section in your project settings and add your `GEMINI_API_KEY`. You can also add `GEMINI_MODEL` and `ACCESS_PASSWORD` here. It's recommended to use Vercel's secret management for this.
 4.  **Deploy**: Click the "Deploy" button. Vercel will build and deploy your application. Once done, you'll get a URL to your live site.
 
 The included `vercel.json` file configures the serverless function to have a longer execution time, which is recommended for AI applications.

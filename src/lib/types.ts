@@ -10,6 +10,7 @@ export interface Message {
 
 export interface ChatRequest {
   messages: Message[];
+  password?: string;
 }
 
 export type History = {

@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  env: {
+    NEXT_PUBLIC_ACCESS_PASSWORD_REQUIRED: process.env.ACCESS_PASSWORD ? 'true' : '',
+  }
 };
 
 export default nextConfig;
