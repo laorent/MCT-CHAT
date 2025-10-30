@@ -95,7 +95,7 @@ export function Chat() {
                     <path d="M12.378 1.602a.75.75 0 00-.756 0L3.366 6.002a.75.75 0 00-.366.648V16.5a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75V6.65a.75.75 0 00-.366-.648L12.378 1.602zM12 7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V8.25A.75.75 0 0112 7.5zM11.25 15a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5h-1.5z" />
                 </svg>
             </div>
-            <h1 className="text-xl font-bold font-headline">Gemini Chat</h1>
+            <h1 className="text-xl font-bold font-headline">MCT Chat</h1>
         </div>
         <Button variant="ghost" size="icon" onClick={clearChat} aria-label="Clear chat session">
           <Trash2 className="w-5 h-5" />

@@ -1,8 +1,8 @@
-# Gemini Chat
+# MCT Chat
 
 This is a responsive, streaming chat application built with Next.js and powered by Google's Gemini model. It supports contextual conversations, image analysis, and real-time web search capabilities.
 
-![Gemini Chat Screenshot](https://picsum.photos/seed/gemini-chat-app/1200/800)
+![MCT Chat Screenshot](https://picsum.photos/seed/mct-chat-app/1200/800)
 
 ## ✨ Features
 
