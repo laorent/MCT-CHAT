@@ -173,7 +173,7 @@ export function Chat() {
       </AlertDialog>
 
       {isAuthenticated && (
-        <Card className="flex flex-col h-screen w-full max-w-4xl mx-auto rounded-none sm:rounded-xl sm:my-4 sm:h-[calc(100vh-2rem)] shadow-lg">
+        <Card className="flex flex-col h-full w-full max-w-4xl mx-auto rounded-none sm:rounded-xl sm:my-4 sm:h-[calc(100vh-2rem)] shadow-lg">
           <header className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
